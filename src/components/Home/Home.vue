@@ -1,6 +1,6 @@
 <template>
   <el-container
-      class="w-full md:w-2/3 xl:w-1/3 mx-auto h-screen bg-[#E0EAF3] select-none">
+      class="w-full mx-auto h-screen bg-[#E0EAF3] select-none">
     <el-header class="px-0 flex items-center">
       <el-input placeholder="大家都在搜 一样的月光">
         <template #prepend class="bg-blue-200">
@@ -65,7 +65,7 @@
           <el-table-column prop="name" min-width="60%" label="歌名" :show-overflow-tooltip="true"/>
           <el-table-column prop="singers" min-width="20%" label="歌手" :show-overflow-tooltip="true"/>
           <el-table-column min-width="10%">
-            <template #default="{row, column, $index }">
+            <template #default="{row }">
               <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-5 w-5 mx-auto hover:text-red-500 cursor-pointer"
@@ -90,20 +90,20 @@
 
 <script setup>
 import {
-  ElContainer,
-  ElHeader,
-  ElFooter,
-  ElMain,
-  ElInput,
   ElCarousel,
   ElCarouselItem,
+  ElContainer,
+  ElFooter,
+  ElHeader,
   ElImage,
+  ElInput,
+  ElMain,
   ElTable,
   ElTableColumn,
 } from "element-plus";
-import { ref} from "vue";
+import {ref, onBeforeMount} from "vue";
 import {store} from "../../store";
-import {newSong, getBanner, getSongUrl} from "/src/api/index";
+import {getBanner, getSongUrl, newSong} from "/src/api/index";
 //存轮播图数据
 const bannerData = ref();
 
@@ -130,7 +130,7 @@ newSong(0).then((res) => {
 
 
 const onPlayMusic = async (id) => {
-  userStore.newMusicList.forEach((music, index,arr) => {
+  userStore.newMusicList.forEach((music, index, arr) => {
     if (id !== music.id) {
       return
     }
@@ -143,7 +143,7 @@ const onPlayMusic = async (id) => {
       }
       case (len - 1): {
         music.prevMusic = arr[index - 1].id
-        music.nextMusic =arr[0].id
+        music.nextMusic = arr[0].id
         break
       }
       default: {
@@ -156,9 +156,9 @@ const onPlayMusic = async (id) => {
         music.musicUrl = res.data[0].url;
         userStore.playMusic = music;
         userStore.showPlay = true;
-        userStore.checkPlay = true;
       }
     })
+    userStore.checkPlay = false
   })
 }
 </script>

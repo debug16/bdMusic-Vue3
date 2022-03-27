@@ -4,10 +4,13 @@ export default createRouter({
     history: createWebHashHistory(),
     routes: [{
         path: '/',
-        component: () => import('/src/components/Home/Home.vue')
+        components: {
+            default: () => import('/src/components/Home/Home.vue')
+        }
     }, {
-        path: '/play',
-        component: () => import('/src/components/Play/Play.vue')
-    }
-    ]
+        path: '/login',
+        components: {
+            login: () => import('/src/components/Login/Login.vue')
+        }
+    }]
 })

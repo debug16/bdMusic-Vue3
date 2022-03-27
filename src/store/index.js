@@ -15,5 +15,8 @@ export const store = defineStore('main', {
         }
     },
     actions: {},
-    getters: {}
+    getters: {
+        getPlayImgUrl(store){
+        }
+    }
 })

@@ -60,6 +60,7 @@ const getSongUrl = async (id = '', br = 999000) => {
  */
 const checkMusic = async (id = '') => {
     return await request('song/url', {id})
+
 }
 
 export {newSong, getBanner, getSongUrl, checkMusic};
