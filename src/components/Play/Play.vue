@@ -1,12 +1,97 @@
+<script setup>
+import {ElAvatar, ElContainer, ElFooter, ElHeader, ElMain, ElProgress,} from "element-plus";
+import {formateTime} from "../../util/Date";
+import {reactive, ref, watch, watchEffect} from "vue";
+import {getSongUrl} from "/src/api/index";
+import {store} from '/src/store'
+
+let img = ref();
+const audio = ref()
+const playInfo = reactive({
+  currentTime: 0,
+  duration: 0.01,
+  musicOverTime: '',
+  musicCurrentTime: '00:00'
+})
+
+
+let percentage = ref(0)
+const userStore = store()
+
+const onChangeProgressBar = (e) => {
+  switch (e.target.className) {
+    case 'el-progress-bar__outer':
+    case 'el-progress-bar__inner': {
+      audio.value.pause()
+      const width = e.target.parentNode.offsetWidth;
+      const offsetX = e.offsetX;
+      const perCentLocation = offsetX / width
+      const currentTime = playInfo.currentTime = perCentLocation * playInfo.duration;
+      audio.value.currentTime = currentTime;
+      audio.value.play()
+    }
+  }
+}
+
+
+
+//隐藏播放器
+const onHiddenView = () => {
+  userStore.showPlay = false;
+}
+
+//停止播放
+const onStopMusic = () => {
+  userStore.checkPlay = false;
+  audio.value.pause();
+}
+
+//开始播放
+const onPlayMusic = () => {
+  userStore.checkPlay = true;
+  audio.value.play();
+  playInfo.duration = audio.value.duration
+  playInfo.musicOverTime = formateTime(playInfo.duration)
+}
+
+const onAudioTimeupdate = (e) => {
+  playInfo.currentTime = e.target.currentTime
+  percentage.value = playInfo.currentTime / playInfo.duration * 100
+  playInfo.musicCurrentTime = formateTime(playInfo.currentTime)
+}
+
+//播放下一曲
+const onNextPlay = () => {
+  audio.value.pause();
+  getSongUrl(userStore.playMusic.nextMusic).then(res => {
+    if (res.data[0].url) {
+      userStore.playMusic.musicUrl = res.data[0].url;
+      userStore.showPlay = true;
+      userStore.checkPlay = true;
+      audio.value.online = audio.value.play;
+    }
+  })
+}
+
+//监听音乐id 如果变化就获取音乐信息
+watch(() => userStore.musicId, (newVal, oldVal) => {
+  if (newVal !== oldVal && newVal) {
+    getSongUrl(newVal).then(res => {
+      audio.value.src = res.data[0].url;
+    })
+  }
+}, {immediate: true})
+</script>
+
 <template>
   <el-container
       :class="{'hidden':!userStore.showPlay}"
-      class="w-full mx-auto overflow-hidden h-screen relative -top-full left-0 z-50 text-[#fff]"
+      class="w-full mx-auto overflow-hidden h-screen absolute left-0 z-50 text-[#fff]"
   >
     <!-- 背景 -->
     <div
         ref="img"
-        :style="`background-image:url('${userStore.playMusic.album.blurPicUrl}')`"
+        :style="`background-image:url('${userStore.playMusic.album?.blurPicUrl}?param=200y200')`"
         class="bg bg-cover w-full h-full absolute -z-10 bg-center overflow-hidden blur-lg scale-125 transition-all duration-1000"
     />
     <el-header class="flex items-center relative px-3">
@@ -50,14 +135,15 @@
     <el-main class="px-3 py-0 flex justify-center items-center text-[#fff]">
       <div class="CDdisk">
         <el-avatar :class="{'paused':!userStore.checkPlay,'play':userStore.checkPlay}" :size="230"
-                   :src="userStore.playMusic.album.blurPicUrl"
+                   :src="`${userStore.playMusic.album?.blurPicUrl}?param=300y300`"
                    class="ring-50 ring-black animate-spin-slow"
         />
       </div>
     </el-main>
     <el-footer class="h-1/6 flex flex-col justify-evenly text-[#fff]">
       <div class="progress">
-        <el-progress :percentage="percentage" class="flex space-x-6" color="#ff0000" @click="onChangeProgressBar($event)"
+        <el-progress :percentage="percentage" class="flex space-x-6" color="#ff0000"
+                     @click="onChangeProgressBar($event)"
         >
           <template #default class="contents">
             <span class="order-1 text-[#dadada] text-sm antialiased"
@@ -192,82 +278,6 @@
   </el-container>
 </template>
 
-<script setup>
-import {ElAvatar, ElContainer, ElFooter, ElHeader, ElMain, ElProgress,} from "element-plus";
-import {formateTime} from "../../util/Date";
-import {reactive, ref} from "vue";
-import {getSongUrl} from "/src/api/index";
-import {store} from '/src/store'
-
-let img = ref();
-const audio = ref()
-const playInfo = reactive({
-  currentTime: 0,
-  duration: 0.01,
-  musicOverTime: '',
-  musicCurrentTime: '00:00'
-})
-
-let percentage = ref(0)
-const userStore = store()
-
-const onChangeProgressBar = (e) => {
-  switch (e.target.className) {
-    case 'el-progress-bar__outer':
-    case 'el-progress-bar__inner': {
-      audio.value.pause()
-      const width = e.target.parentNode.offsetWidth;
-      const offsetX = e.offsetX;
-      const perCentLocation = offsetX / width
-      const currentTime = playInfo.currentTime = perCentLocation * playInfo.duration;
-      audio.value.currentTime = currentTime;
-      audio.value.play()
-    }
-  }
-}
-
-
-//隐藏播放器
-const onHiddenView = () => {
-  userStore.showPlay = false;
-}
-
-//停止播放
-const onStopMusic = () => {
-  userStore.checkPlay = false;
-  audio.value.pause();
-}
-
-//开始播放
-const onPlayMusic = () => {
-  userStore.checkPlay = true;
-  audio.value.play();
-  playInfo.duration = audio.value.duration
-  playInfo.musicOverTime = formateTime(playInfo.duration)
-}
-
-const onAudioTimeupdate = (e) => {
-  playInfo.currentTime = e.target.currentTime
-  percentage.value = playInfo.currentTime / playInfo.duration * 100
-  playInfo.musicCurrentTime = formateTime(playInfo.currentTime)
-}
-
-//播放下一曲
-const onNextPlay = () => {
-  audio.value.pause();
-  getSongUrl(userStore.playMusic.nextMusic).then(res => {
-    if (res.data[0].url) {
-      userStore.playMusic.musicUrl = res.data[0].url;
-      userStore.showPlay = true;
-      userStore.checkPlay = true;
-      audio.value.online = audio.value.play;
-    }
-  })
-}
-
-</script>
-
-
 <style scoped>
 :deep(.el-progress-bar__outer) {
   height: 2px !important;
@@ -293,7 +303,7 @@ svg {
   @apply w-full flex-grow box-border bg-[#fff];
 }
 
-:deep(.el-progress-bar__inner){
+:deep(.el-progress-bar__inner) {
   @apply ease-[cubic-bezier(0.22,0.61,0.36,1)]
 }
 

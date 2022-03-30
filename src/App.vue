@@ -4,8 +4,6 @@ import {store} from './store'
 import 'element-plus/dist/index.css'
 import 'animate.css'
 import './assets/css/index.css'
-import Home from "./components/Home/Home.vue";
-
 
 const userStore = store()
 let viewPlay = shallowRef()
@@ -19,27 +17,19 @@ watchEffect(() => {
 </script>
 
 <template>
-  <div class="w-full sm:w-2/3 xl:w-1/3 mx-auto overflow-hidden h-screen">
+  <div
+      class="w-full sm:w-2/3 xl:w-1/3 xl:w-3/6 2xl:w-2/6 overflow-hidden flex flex-col relative h-screen mx-auto bg-gradient-to-b from-slate-100 to-white">
+    <!-- 顶部搜索 -->
     <router-view name="upTabBar"></router-view>
+    <!-- 主内容 -->
     <router-view></router-view>
+    <!-- 底部导航 -->
     <router-view name="downTabBar"></router-view>
+    <!-- 播放器 -->
     <component :is="viewPlay"></component>
-    <ul>
-      <li>
-        <router-link to="/">主页</router-link>
-      </li>
-      <li>
-        <router-link to="/">专辑</router-link>
-      </li>
-      <li>
-        <router-link to="/">收藏</router-link>
-      </li>
-      <li>
-        <router-link to="/">我的</router-link>
-      </li>
-    </ul>
+    <!-- 登录 -->
+    <router-view name="login"></router-view>
   </div>
-  <router-view name="login"></router-view>
 </template>
 
 <style>
@@ -51,8 +41,11 @@ html, body {
 }
 
 #app {
-
   height: 100%;
   width: 100%;
+}
+
+*:not(html,body)::-webkit-scrollbar {
+  display: none;
 }
 </style>

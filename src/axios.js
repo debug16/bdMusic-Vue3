@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const request = axios.create({
-    baseURL: 'http://y.233c.cn/',
-    timeout: 5000,
+    baseURL: 'https://cloud-music-api-lyart.vercel.app',
+    timeout: 100000,
 });
 
 export default request;

@@ -1,57 +1,83 @@
+<script setup>
+import {
+  ElCarousel,
+  ElCarouselItem,
+  ElContainer,
+  ElImage,
+  ElMain,
+  ElTable,
+  ElTableColumn,
+} from "element-plus";
+import {ref} from "vue";
+import {store} from "../../store";
+import {getBanner, getSongUrl, newSong} from "/src/api/index";
+import {useRouter} from "vue-router";
+//存轮播图数据
+const bannerData = ref();
+const router = useRouter()
+const userStore = store()
+//获取轮播图
+getBanner(0).then((res) => {
+  bannerData.value = res.banners;
+});
+
+
+//获取最新歌曲
+if (userStore.getNewMusicList.length === 0) { //如果没有数据就请求资源
+  newSong(0).then((res) => {
+    let singers;
+    res.data.forEach((music, index) => {
+      singers = "";
+      //拼接歌手
+      music.artists.forEach((singer) => {
+        singers ? (singers += "/" + singer.name) : (singers = singer.name);
+      });
+      //把歌手存入
+      res.data[index].singers = singers;
+    });
+    userStore.newMusicList = res.data
+  });
+}
+
+const onPlayMusic = async (id) => {
+  userStore.newMusicList.forEach((music, index, arr) => {
+    if (id !== music.id) {
+      return
+    }
+    let len = arr.length;
+    switch (index) {
+      case 0: {
+        music.prevMusic = arr[len - 1].id
+        music.nextMusic = arr[index + 1].id
+        break
+      }
+      case (len - 1): {
+        music.prevMusic = arr[index - 1].id
+        music.nextMusic = arr[0].id
+        break
+      }
+      default: {
+        music.prevMusic = arr[index - 1].id
+        music.nextMusic = arr[index + 1].id
+      }
+    }
+    //获取歌曲url
+    getSongUrl(id).then(res => {
+      if (res.data[0].url) {
+        music.musicUrl = res.data[0].url;
+        userStore.playMusic = music;
+        userStore.showPlay = true;
+      }
+    })
+    userStore.checkPlay = false
+  })
+}
+</script>
+
 <template>
   <el-container
-      class="w-full mx-auto h-screen bg-[#E0EAF3] select-none">
-    <el-header class="px-0 flex items-center">
-      <el-input placeholder="大家都在搜 一样的月光">
-        <template #prepend class="bg-blue-200">
-          <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5 cursor-pointer text-#2B3036"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2"
-          >
-            <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M4 6h16M4 12h16M4 18h16"
-            />
-          </svg>
-        </template>
-        <template #append>
-          <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5 cursor-pointer text-#2B3036"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-          >
-            <path
-                fill-rule="evenodd"
-                d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z"
-                clip-rule="evenodd"
-            />
-          </svg>
-        </template>
-        <template #prefix>
-          <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2"
-          >
-            <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-        </template>
-      </el-input>
-    </el-header>
-    <el-main class="px-3 pt-0">
+      class="w-full mx-auto select-none h-4/6">
+    <el-main class="px-3 py-0">
       <div class="carousel select-none">
         <el-carousel trigger="click" height="160px" arrow="never" :loop="true" :initialIndex="2">
           <el-carousel-item v-for="(item, index) in bannerData" :key="index">
@@ -84,91 +110,11 @@
         </el-table>
       </div>
     </el-main>
-    <el-footer class="bg-slate-500">Footer</el-footer>
   </el-container>
 </template>
 
-<script setup>
-import {
-  ElCarousel,
-  ElCarouselItem,
-  ElContainer,
-  ElFooter,
-  ElHeader,
-  ElImage,
-  ElInput,
-  ElMain,
-  ElTable,
-  ElTableColumn,
-} from "element-plus";
-import {ref, onBeforeMount} from "vue";
-import {store} from "../../store";
-import {getBanner, getSongUrl, newSong} from "/src/api/index";
-//存轮播图数据
-const bannerData = ref();
-
-const userStore = store()
-//获取轮播图
-getBanner(0).then((res) => {
-  bannerData.value = res.banners;
-});
-
-//获取最新歌曲
-newSong(0).then((res) => {
-  let singers;
-  res.data.forEach((music, index) => {
-    singers = "";
-    //拼接歌手
-    music.artists.forEach((singer) => {
-      singers ? (singers += "/" + singer.name) : (singers = singer.name);
-    });
-    //把歌手存入
-    res.data[index].singers = singers;
-  });
-  userStore.newMusicList = res.data
-});
-
-
-const onPlayMusic = async (id) => {
-  userStore.newMusicList.forEach((music, index, arr) => {
-    if (id !== music.id) {
-      return
-    }
-    let len = arr.length;
-    switch (index) {
-      case 0: {
-        music.prevMusic = arr[len - 1].id
-        music.nextMusic = arr[index + 1].id
-        break
-      }
-      case (len - 1): {
-        music.prevMusic = arr[index - 1].id
-        music.nextMusic = arr[0].id
-        break
-      }
-      default: {
-        music.prevMusic = arr[index - 1].id
-        music.nextMusic = arr[index + 1].id
-      }
-    }
-    getSongUrl(id).then(res => {
-      if (res.data[0].url) {
-        music.musicUrl = res.data[0].url;
-        userStore.playMusic = music;
-        userStore.showPlay = true;
-      }
-    })
-    userStore.checkPlay = false
-  })
-}
-</script>
-
 
 <style scoped>
-main::-webkit-scrollbar {
-  display: none;
-}
-
 :deep(.el-input-group__prepend),
 :deep(.el-input-group__append) {
   @apply bg-transparent shadow-none px-4;
@@ -184,5 +130,10 @@ main::-webkit-scrollbar {
 
 :deep(.el-carousel__indicator--horizontal .el-carousel__button) {
   @apply w-2;
+}
+
+/*表格序号居中*/
+:deep(.el-table__row .el-table__cell:first-child .cell div) {
+  @apply text-center;
 }
 </style>

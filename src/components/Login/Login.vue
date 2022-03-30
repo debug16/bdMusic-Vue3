@@ -12,7 +12,7 @@ const input = reactive({
 
 <template>
   <el-container class="block">
-    <el-main class="flex flex-col 2xl:w-3/12 lg:w-4/12 sm:w-7/12 mx-auto">
+    <el-main class="flex flex-col w-11/12 mx-auto">
       <el-row>
         <el-col class="text-center loginTitle">
           <span class="text-lg sm:text-xl ">后台系统管理-欢迎登录</span>
@@ -52,7 +52,7 @@ const input = reactive({
 <style scoped>
 
 .el-container {
-  width: 100vw;
+  width: 100%;
   height: 100vh;
   background-color: #F6F4F5;
 }
