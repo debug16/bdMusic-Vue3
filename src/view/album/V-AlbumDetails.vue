@@ -30,32 +30,36 @@ const onPlayMusic = (row) => {
     blurPicUrl: userStore.getAlbumImg,
   }
   userStore.playMusic.album = blurPicUrl;
-  userStore.playMusic.name =  row.name;
+  userStore.playMusic.name = row.name;
   userStore.setMusicId(row.id);
   userStore.showPlay = true;
 }
 
+const theme = {
+  color: `url('${userStore.getAlbumImg}')`,
+}
 </script>
 
 <template>
-  <UpAlbumBar title="专辑"/>
-  <el-card class="relative top-0 left-0">
-    <el-empty :image-size="150" :image="`${userStore.getAlbumImg}?param=150y150`">
-      <template #description>
-        <div class="albumDetails truncate text-ellipsis">
-          <div class="detailTop">
-            <p class="albumName">{{ userStore.getAlbumName }}</p>
-            <p><span>歌手：</span><span>{{ userStore.getAlbumSinger }}</span></p>
+  <div class="header relative bg-transparent overflow-hidden" :style="`--bg-img:url('${userStore.getAlbumImg}?param=150y150')`">
+    <UpAlbumBar title="专辑" class="text-[#fff] relative"/>
+    <el-card class="relative top-0 left-0">
+      <el-empty :image-size="150" :image="`${userStore.getAlbumImg}?param=150y150`">
+        <template #description>
+          <div class="albumDetails truncate text-ellipsis">
+            <div class="detailTop">
+              <p class="albumName">{{ userStore.getAlbumName }}</p>
+              <p><span>歌手：</span><span>{{ userStore.getAlbumSinger }}</span></p>
+            </div>
+            <div class="detailBottom">
+              <p><span>发行时间：</span><span>{{ formateDate(userStore.getAlbumTime) }}</span></p>
+              <p><span>{{ userStore.getAlbumDesc }}</span></p>
+            </div>
           </div>
-          <div class="detailBottom">
-            <p><span>发行时间：</span><span>{{ formateDate(userStore.getAlbumTime) }}</span></p>
-            <p><span>{{ userStore.getAlbumDesc }}</span></p>
-          </div>
-
-        </div>
-      </template>
-    </el-empty>
-  </el-card>
+        </template>
+      </el-empty>
+    </el-card>
+  </div>
   <el-container
       class="w-full mx-auto select-none h-4/6">
     <el-main class="px-3 py-0">
@@ -89,8 +93,34 @@ const onPlayMusic = (row) => {
 </template>
 
 <style scoped>
+:root {
+  --bg-img: '';
+}
+
+.header {
+  background: #a2a1a1;
+  overflow: hidden;
+}
+:deep(.el-header div svg){
+  color: #fff;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  overflow: hidden;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: scale(3);
+  filter: blur(30px);
+  background-image: var(--bg-img);
+  z-index: 0;
+  background-position: bottom;
+}
+
 .el-card {
-  @apply border-none shadow-none rounded-none;
+  @apply border-none shadow-none rounded-none bg-transparent;
 }
 
 .el-empty {
@@ -126,12 +156,12 @@ const onPlayMusic = (row) => {
 }
 
 .albumDetails .albumName {
-  @apply text-base;
+  @apply text-base text-white;
   font-weight: bold;
 }
 
 .albumDetails p {
-  @apply overflow-hidden text-ellipsis
+  @apply overflow-hidden text-ellipsis text-[#eee]
 }
 
 /*表格序号居中*/

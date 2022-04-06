@@ -38,6 +38,7 @@ html, body {
   height: 100vh;
   padding: 0;
   margin: 0;
+  -webkit-tap-highlight-color: rgba(0,0,0,0)
 }
 
 #app {

@@ -2,12 +2,23 @@
 import {ElMain, ElContainer, ElRow, ElCol, ElImage, ElCard, ElEmpty, ElIcon} from "element-plus";
 import {store} from "../../store";
 import {useRouter} from "vue-router";
+import {onBeforeMount, ref} from "vue";
 import UpAlbumBar from "../../components/UpTabBar/UpAlbumBar.vue";
-
+import {getTopAlbum} from "../../api";
 
 const userStore = store()
 const router = useRouter()
-const albums = userStore.getWeekAlbums;
+// const albums =ref([]);
+onBeforeMount(async () => {
+  if (!userStore.getWeekAlbums?.length) {
+    const albumData = await getTopAlbum(50);
+    if (albumData.code === 200) {
+      userStore.setAlbums(albumData)
+    }
+  }
+})
+
+
 //拼接歌手名字
 const connectionName = (arr = []) => {
   let name = [];
@@ -35,6 +46,7 @@ const onAlbumDetails = (event) => {
     router.push({name: 'albumDetails', params: {id}})
   }
 }
+
 </script>
 
 <template>
@@ -42,8 +54,8 @@ const onAlbumDetails = (event) => {
   <el-container>
     <el-main>
       <p>本周新碟</p>
-      <div class="contentTheAlbum flex flex-wrap justify-between scroll-container" @click="onAlbumDetails($event)">
-        <el-row v-for="item in albums" :key="item.id" class="w-1/2 lg:w-1/3 my-2">
+      <div class="contentTheAlbum flex flex-wrap scroll-container" @click="onAlbumDetails($event)">
+        <el-row v-for="item in userStore.getWeekAlbums" :key="item.id" class="w-1/2 lg:w-1/3 my-2">
           <el-col :span="24">
             <el-card class="h-full mx-4 text-center rounded-xl cursor-pointer hover:scale-105" :data_album="item.id">
               <el-empty class="p-0">

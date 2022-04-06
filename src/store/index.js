@@ -2,6 +2,8 @@ import {defineStore} from 'pinia'
 export const store = defineStore('main', {
     state() {
         return {
+            // 用户数据
+            userInfo:{},
             //播放音乐的数据
             playMusic: {
             },

@@ -39,44 +39,42 @@ if (userStore.getNewMusicList.length === 0) { //如果没有数据就请求资�
   });
 }
 
-const onPlayMusic = async (id) => {
-  userStore.newMusicList.forEach((music, index, arr) => {
-    if (id !== music.id) {
-      return
-    }
-    let len = arr.length;
-    switch (index) {
-      case 0: {
-        music.prevMusic = arr[len - 1].id
-        music.nextMusic = arr[index + 1].id
-        break
-      }
-      case (len - 1): {
-        music.prevMusic = arr[index - 1].id
-        music.nextMusic = arr[0].id
-        break
-      }
-      default: {
-        music.prevMusic = arr[index - 1].id
-        music.nextMusic = arr[index + 1].id
-      }
-    }
-    //获取歌曲url
-    getSongUrl(id).then(res => {
-      if (res.data[0].url) {
-        music.musicUrl = res.data[0].url;
-        userStore.playMusic = music;
-        userStore.showPlay = true;
-      }
-    })
-    userStore.checkPlay = false
-  })
+const onPlayMusic = async (row) => {
+  // userStore.newMusicList.forEach((music, index, arr) => {
+  //   if (id !== music.id) {
+  //     return
+  //   }
+  //   let len = arr.length;
+  //   switch (index) {
+  //     case 0: {
+  //       music.prevMusic = arr[len - 1].id
+  //       music.nextMusic = arr[index + 1].id
+  //       break
+  //     }
+  //     case (len - 1): {
+  //       music.prevMusic = arr[index - 1].id
+  //       music.nextMusic = arr[0].id
+  //       break
+  //     }
+  //     default: {
+  //       music.prevMusic = arr[index - 1].id
+  //       music.nextMusic = arr[index + 1].id
+  //     }
+  //   }
+
+  //显示播放器
+  userStore.showPlay = true;
+  //如果点击的歌曲id和当前播放的歌曲id一样，就修改播放的id了
+  if (row.id === userStore.musicId) return;
+  userStore.musicId = row.id;
+  userStore.playMusic = row;
+
 }
 </script>
 
 <template>
   <el-container
-      class="w-full mx-auto select-none h-4/6">
+      class="w-full mx-auto select-none overflow-hidden">
     <el-main class="px-3 py-0">
       <div class="carousel select-none">
         <el-carousel trigger="click" height="160px" arrow="never" :loop="true" :initialIndex="2">
@@ -97,7 +95,7 @@ const onPlayMusic = async (id) => {
                   class="h-5 w-5 mx-auto hover:text-red-500 cursor-pointer"
                   viewBox="0 0 20 20"
                   fill="currentColor"
-                  @click="onPlayMusic(row.id)"
+                  @click="onPlayMusic(row)"
               >
                 <path
                     fill-rule="evenodd"

@@ -8,12 +8,13 @@ import {store} from '/src/store'
 let img = ref();
 const audio = ref()
 const playInfo = reactive({
+  //当前音乐播放到的时间
   currentTime: 0,
+  //当前音乐的总时长
   duration: 0.01,
-  musicOverTime: '',
+  musicOverTime: '00:00',
   musicCurrentTime: '00:00'
 })
-
 
 let percentage = ref(0)
 const userStore = store()
@@ -34,7 +35,6 @@ const onChangeProgressBar = (e) => {
 }
 
 
-
 //隐藏播放器
 const onHiddenView = () => {
   userStore.showPlay = false;
@@ -48,15 +48,15 @@ const onStopMusic = () => {
 
 //开始播放
 const onPlayMusic = () => {
-  userStore.checkPlay = true;
   audio.value.play();
+  userStore.checkPlay = true;
   playInfo.duration = audio.value.duration
   playInfo.musicOverTime = formateTime(playInfo.duration)
 }
 
 const onAudioTimeupdate = (e) => {
   playInfo.currentTime = e.target.currentTime
-  percentage.value = playInfo.currentTime / playInfo.duration * 100
+  percentage.value = (playInfo.currentTime / playInfo.duration) * 100
   playInfo.musicCurrentTime = formateTime(playInfo.currentTime)
 }
 
@@ -73,13 +73,22 @@ const onNextPlay = () => {
   })
 }
 
-//监听音乐id 如果变化就获取音乐信息
-watch(() => userStore.musicId, (newVal, oldVal) => {
-  if (newVal !== oldVal && newVal) {
-    getSongUrl(newVal).then(res => {
-      audio.value.src = res.data[0].url;
+//监听音乐id 如果变化就获取新的音乐信息
+watch(() => userStore.musicId, (newId, oldId) => {
+  //如果旧的id有值说明播放器被加载过了 id发生了变化需要把上一个音乐停掉 把上个音乐的播放时间初始化
+  if (oldId) {
+    console.log(newId, oldId)
+    onStopMusic()
+  }
+
+  //如果新的id有值说明需要播放新的音乐
+  if (newId) {
+    //获取新的音乐信息
+    getSongUrl(newId).then(res => {
+      userStore.playMusic.musicUrl = res.data[0].url;
     })
   }
+
 }, {immediate: true})
 </script>
 
@@ -113,7 +122,7 @@ watch(() => userStore.musicId, (newVal, oldVal) => {
             />
           </svg>
         </li>
-        <li class="w-10/12">{{ userStore.playMusic.name }}</li>
+        <li class="w-10/12 text-ellipsis truncate">{{ userStore.playMusic.name }}</li>
         <li class="w-1/12 inline-flex justify-end">
           <svg
               class="h-6 w-6"
@@ -135,7 +144,7 @@ watch(() => userStore.musicId, (newVal, oldVal) => {
     <el-main class="px-3 py-0 flex justify-center items-center text-[#fff]">
       <div class="CDdisk">
         <el-avatar :class="{'paused':!userStore.checkPlay,'play':userStore.checkPlay}" :size="230"
-                   :src="`${userStore.playMusic.album?.blurPicUrl}?param=300y300`"
+                   :src="`${userStore.playMusic.album?.blurPicUrl}?param=200y200`"
                    class="ring-50 ring-black animate-spin-slow"
         />
       </div>
@@ -268,8 +277,8 @@ watch(() => userStore.musicId, (newVal, oldVal) => {
         </ul>
       </div>
     </el-footer>
-    <audio ref="audio" @ended="onStopMusic" @playing="onPlayMusic" @timeupdate="onAudioTimeupdate($event)"
-           :src="userStore.playMusic.musicUrl" autoplay hidden
+    <audio ref="audio" @ended="onStopMusic" @play="onPlayMusic" @timeupdate="onAudioTimeupdate($event)"
+           :src="userStore.playMusic.musicUrl" autoplay="autoplay" hidden
            controls>
       <source :src="userStore.playMusic.musicUrl" type="audio/ogg">
       <source :src="userStore.playMusic.musicUrl" type="audio/mpeg">

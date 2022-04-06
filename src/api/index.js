@@ -3,15 +3,17 @@ import axios from '../axios'
 /**
  *
  * @param url url地址
- * @param config 请求得配置
+ * @param params 请求得配置
+ * @param config axios配置
  * @return {Promise<Object>}
  */
-const request = async(url = '', config = {}) => {
-    let res = { 'data': '', msg: '' };
+const request = async (url = '', params = {}, config = {}) => {
+    let res = {'data': '', msg: ''};
     await axios.get(url, {
         params: {
-            ...config
-        }
+            ...params
+        },
+        ...config
     }).then(data => {
         res.data = data.data;
         res.msg = data.code;
@@ -26,8 +28,8 @@ const request = async(url = '', config = {}) => {
  * @param {Number} type 全部:0 华语:7 欧美:96 日本:8 韩国:16
  * @returns {Promise<Object>}
  */
-const newSong = async(type = 0) => {
-    return await request('top/song', { type })
+const newSong = async (type = 0) => {
+    return await request('top/song', {type})
 }
 
 /**
@@ -35,8 +37,8 @@ const newSong = async(type = 0) => {
  * @param {Number} type 0: pc 1: android 2: iphone 3: ipad
  * @returns {Promise<Object>}
  */
-const getBanner = async(type = 0) => {
-    return await request('banner', { type })
+const getBanner = async (type = 0) => {
+    return await request('banner', {type})
 }
 
 /**
@@ -46,14 +48,24 @@ const getBanner = async(type = 0) => {
  * @param {Number} br 码率,默认设置了 999000 即最大码率,如果要 320k 则可设置为 320000,其他类推
  * @returns {Promise<Object>}
  */
-const getSongUrl = async(id = '', br = 999000) => {
+const getSongUrl = async (id = '', br = 999000) => {
+
     let arg = id;
     try {
         if (id instanceof Object && 'join' in id) {
             console.log(id);
             arg = id.join(',');
         }
-        return await request('song/url', { id: arg, br })
+
+        //检查音乐是否可用
+        const {success, message} = await checkMusic(arg);
+        if (!success) {
+            return {
+                data: success,
+                msg: message
+            }
+        }
+        return await request('song/url', {id: arg, br})
     } catch (e) {
         console.error(e);
         return new Error(e)
@@ -65,8 +77,8 @@ const getSongUrl = async(id = '', br = 999000) => {
  * @param id 歌曲 id
  * @return {Promise<Object>}
  */
-const checkMusic = async(id = '') => {
-    return await request('song/url', { id })
+const checkMusic = async (id = '') => {
+    return await request('/check/music', {id})
 }
 
 /**
@@ -74,7 +86,7 @@ const checkMusic = async(id = '') => {
  * 获取云音乐首页新碟上架数据
  * @return {Promise<Object>}
  */
-const getAlbumNewest = async() => {
+const getAlbumNewest = async () => {
     return await request('/album/newest')
 }
 
@@ -89,8 +101,8 @@ const getAlbumNewest = async() => {
  * @param month ,默认本月
  * @return {Promise<Object>}
  */
-const getTopAlbum = async(limit = 50, offset = 0, area = 'All', type = 'new', year, month) => {
-    return await request('/top/album', { limit, offset, area, type, year, month })
+const getTopAlbum = async (limit = 50, offset = 0, area = 'All', type = 'new', year, month) => {
+    return await request('/top/album', {limit, offset, area, type, year, month})
 }
 
 /**
@@ -99,8 +111,29 @@ const getTopAlbum = async(limit = 50, offset = 0, area = 'All', type = 'new', ye
  * @param id 专辑id
  * @return {Promise<Object>}
  */
-const getAlbumContent = async(id = 0) => {
-    return await request('/album', { id })
+const getAlbumContent = async (id = 0) => {
+    return await request('/album', {id})
 }
 
-export { newSong, getBanner, getSongUrl, checkMusic, getAlbumNewest, getTopAlbum, getAlbumContent };
+/**
+ * 手机号码密码登录
+ * @param phone 手机号码
+ * @param password 密码
+ * @return {Promise<Object>}
+ */
+const loginPhone = async (phone = 0, password = '') => {
+    return await request('http://cloud-music-api-lyart.vercel.app/login/cellphone', {
+        phone,
+        password
+    }, {withCredentials: true,})
+}
+
+/**
+ * 检查登录状态 是否登录了
+ * @return {Promise<Object>}
+ */
+const getLoginStatus = async () => {
+    return await request('https://cloud-music-api-lyart.vercel.app/login/status', {},{withCredentials: true})
+}
+
+export {newSong, getBanner, getSongUrl, checkMusic, getAlbumNewest, getTopAlbum, getAlbumContent, loginPhone,getLoginStatus};

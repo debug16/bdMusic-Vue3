@@ -1,12 +1,48 @@
 <script setup>
-import {ElButton, ElCol, ElContainer, ElInput, ElMain, ElRow} from 'element-plus'
+import {ElButton, ElCol, ElContainer, ElInput, ElMain, ElRow, ElMessage} from 'element-plus'
 import {Unlock, User} from '@element-plus/icons-vue'
+import {useRouter} from "vue-router";
+import {loginPhone} from '/src/api';
+import {store} from "../../store";
 import {reactive} from "vue";
 
+const userStore = store()
+const router = useRouter()
 const input = reactive({
-  user: '',
+  phone: '',
   password: ''
 })
+
+//登录
+const login = async (phone, password) => {
+  if(phone.length !== 11) {
+    ElMessage.error('请输入正确的手机号')
+    return
+  }
+  if (password.length < 6) {
+    ElMessage.error('密码长度不能小于6位')
+    return
+  }
+  if(!phone || !password) {
+    ElMessage.error('请输入手机号和密码')
+    return
+  }
+
+  const res = await loginPhone(phone, encodeURIComponent(password))
+  if (res.code === 200) {
+    userStore.userInfo = res.profile
+    ElMessage({
+      message: '欢迎你：' + res.profile.nickname,
+      type: 'success',
+    })
+    await router.replace('/')
+  } else {
+    ElMessage({
+      message: '登录失败' + res.msg,
+      type: 'error',
+    })
+  }
+}
 
 </script>
 
@@ -21,10 +57,13 @@ const input = reactive({
       <el-row justify="center">
         <el-col :span="20">
           <el-input
-              v-model="input.user"
-              placeholder="请输入用户名"
+              v-model.trim="input.phone"
+              placeholder="请输入手机号码"
               :prefix-icon="User"
               :autofocus="true"
+              :maxlength="11"
+              :show-word-limit="true"
+              autofocus
               class="text-base login-input"
           />
         </el-col>
@@ -32,17 +71,21 @@ const input = reactive({
       <el-row justify="center">
         <el-col :span="20">
           <el-input
-              v-model="input.password"
+              v-model.trim="input.password"
               placeholder="请输入密码"
               :prefix-icon="Unlock"
               :show-password="true"
+              :minlength="6"
+              :maxlength="16"
+
               class="text-base login-input"
           />
         </el-col>
       </el-row>
       <el-row justify="center">
         <el-col :span="20">
-          <el-button type="primary" class="w-full h-10 bg-[#409EFF]">登录</el-button>
+          <el-button type="primary" class="w-full h-10 bg-[#409EFF]" @click="login(input.phone,input.password)">登录
+          </el-button>
         </el-col>
       </el-row>
     </el-main>
