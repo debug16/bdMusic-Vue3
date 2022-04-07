@@ -133,7 +133,27 @@ const loginPhone = async (phone = 0, password = '') => {
  * @return {Promise<Object>}
  */
 const getLoginStatus = async () => {
-    return await request('https://cloud-music-api-lyart.vercel.app/login/status', {},{withCredentials: true})
+    return await request('https://cloud-music-api-lyart.vercel.app/login/status', {}, {withCredentials: true})
 }
 
-export {newSong, getBanner, getSongUrl, checkMusic, getAlbumNewest, getTopAlbum, getAlbumContent, loginPhone,getLoginStatus};
+/**
+ * 获取歌词
+ * @param id 歌曲的id
+ * @return {Promise<Object>}
+ */
+const getLyric = async (id) => {
+    return await request('/lyric', {id},)
+}
+
+export {
+    newSong,
+    getBanner,
+    getSongUrl,
+    checkMusic,
+    getAlbumNewest,
+    getTopAlbum,
+    getAlbumContent,
+    loginPhone,
+    getLoginStatus,
+    getLyric
+};

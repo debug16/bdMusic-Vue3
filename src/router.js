@@ -36,9 +36,8 @@ export default createRouter({
             }
             // 获取登录状态
             const {data: res} = await getLoginStatus()
-            console.log(res)
             //没有登录
-            if (res.code !== 200) {
+            if (!res.profile) {
                 next({path: '/login',})
             } else {
                 store().userInfo = res.profile;
@@ -62,20 +61,7 @@ export default createRouter({
                 default: () => import('/src/view/album/V-Album.vue'),
                 downTabBar
             },
-            // keepAlive: true,
-            // async beforeEnter(to, from, next) {
-            //     if (store().getWeekAlbums?.length) {
-            //         next()
-            //         return
-            //     }
-            //     const albumData = await getTopAlbum(50);
-            //     if (albumData.code === 200) {
-            //         store().setAlbums(albumData)
-            //         next()
-            //     } else {
-            //         next('/')
-            //     }
-            // }
+            keepAlive: true,
         }, {
             //404
             path: '/:notfound(.*)*',

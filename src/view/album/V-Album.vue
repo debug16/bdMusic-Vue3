@@ -8,7 +8,6 @@ import {getTopAlbum} from "../../api";
 
 const userStore = store()
 const router = useRouter()
-// const albums =ref([]);
 onBeforeMount(async () => {
   if (!userStore.getWeekAlbums?.length) {
     const albumData = await getTopAlbum(50);

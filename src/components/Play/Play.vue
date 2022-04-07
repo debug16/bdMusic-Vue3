@@ -1,12 +1,14 @@
 <script setup>
 import {ElAvatar, ElContainer, ElFooter, ElHeader, ElMain, ElProgress,} from "element-plus";
 import {formateTime} from "../../util/Date";
-import {reactive, ref, watch, watchEffect} from "vue";
-import {getSongUrl} from "/src/api/index";
+import {reactive, ref, watch} from "vue";
+import Lyric from "../Lyric/Lyric.vue";
+import {getSongUrl, getLyric} from "/src/api/index";
 import {store} from '/src/store'
 
-let img = ref();
+//audio
 const audio = ref()
+//播放信息
 const playInfo = reactive({
   //当前音乐播放到的时间
   currentTime: 0,
@@ -15,10 +17,39 @@ const playInfo = reactive({
   musicOverTime: '00:00',
   musicCurrentTime: '00:00'
 })
+//歌词是否显示
+const lyricShow = ref(false)
+//歌词播放时index
+const lyricIndex = ref(0)
+//歌词
+const lyric = ref([])
+//播放进度条
+const percentage = ref(0)
 
-let percentage = ref(0)
 const userStore = store()
 
+//处理歌词
+const finishLyric = lyr => {
+  return lyr.split('\n').map((item, index, arr) => {
+    const time = item.match(/\[(\d{2}):(\d{2})\.(\d{2,})\]/);
+    if (time) {
+      const min = parseInt(time[1], 10);
+      const sec = parseInt(time[2], 10);
+      const ms = parseInt(time[3], 10);
+      const text = item.replace(/\[(\d{2}):(\d{2})\.(\d{2,})\]/g, '');
+      return {
+        time: min * 60 + sec + ms / 1000,
+        text
+      }
+    }
+    return {
+      time: 0,
+      text: ''
+    };
+  })
+}
+
+//进度条点击事件
 const onChangeProgressBar = (e) => {
   switch (e.target.className) {
     case 'el-progress-bar__outer':
@@ -54,10 +85,23 @@ const onPlayMusic = () => {
   playInfo.musicOverTime = formateTime(playInfo.duration)
 }
 
+//audio时间改变事件
 const onAudioTimeupdate = (e) => {
   playInfo.currentTime = e.target.currentTime
   percentage.value = (playInfo.currentTime / playInfo.duration) * 100
   playInfo.musicCurrentTime = formateTime(playInfo.currentTime)
+
+  //找到符合条件的歌词
+  const index = lyric.value.findIndex((item, i, obj) => {
+    if (item.time >= playInfo.currentTime) {
+      return true;
+    }
+    if (obj.length - 1 === i) {
+      return true
+    }
+    return false
+  }) || 0
+  lyricIndex.value = index;
 }
 
 //播放下一曲
@@ -87,6 +131,14 @@ watch(() => userStore.musicId, (newId, oldId) => {
     getSongUrl(newId).then(res => {
       userStore.playMusic.musicUrl = res.data[0].url;
     })
+
+    //获取歌词
+    getLyric(newId).then(res => {
+      if (res.lrc) {
+        lyric.value = finishLyric(res.lrc.lyric)
+        console.log(lyric.value)
+      }
+    })
   }
 
 }, {immediate: true})
@@ -94,12 +146,11 @@ watch(() => userStore.musicId, (newId, oldId) => {
 
 <template>
   <el-container
-      :class="{'hidden':!userStore.showPlay}"
+      v-show="userStore.showPlay"
       class="w-full mx-auto overflow-hidden h-screen absolute left-0 z-50 text-[#fff]"
   >
     <!-- 背景 -->
     <div
-        ref="img"
         :style="`background-image:url('${userStore.playMusic.album?.blurPicUrl}?param=200y200')`"
         class="bg bg-cover w-full h-full absolute -z-10 bg-center overflow-hidden blur-lg scale-125 transition-all duration-1000"
     />
@@ -142,12 +193,13 @@ watch(() => userStore.musicId, (newId, oldId) => {
       </ul>
     </el-header>
     <el-main class="px-3 py-0 flex justify-center items-center text-[#fff]">
-      <div class="CDdisk">
+      <div class="CDdisk" v-show="!lyricShow">
         <el-avatar :class="{'paused':!userStore.checkPlay,'play':userStore.checkPlay}" :size="230"
                    :src="`${userStore.playMusic.album?.blurPicUrl}?param=200y200`"
                    class="ring-50 ring-black animate-spin-slow"
         />
       </div>
+      <Lyric v-show="lyricShow" :lyric="lyric" :lyric-index="lyricIndex"/>
     </el-main>
     <el-footer class="h-1/6 flex flex-col justify-evenly text-[#fff]">
       <div class="progress">
@@ -173,6 +225,7 @@ watch(() => userStore.musicId, (newId, oldId) => {
                 stroke-width="2"
                 viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"
+                @click="lyricShow = !lyricShow"
             >
               <path
                   d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
