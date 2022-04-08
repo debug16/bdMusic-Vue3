@@ -81,7 +81,7 @@ const onStopMusic = () => {
 const onPlayMusic = () => {
   audio.value.play();
   userStore.checkPlay = true;
-  playInfo.duration = audio.value.duration
+  playInfo.duration = audio.value.duration || 0.01
   playInfo.musicOverTime = formateTime(playInfo.duration)
 }
 
@@ -121,7 +121,6 @@ const onNextPlay = () => {
 watch(() => userStore.musicId, (newId, oldId) => {
   //如果旧的id有值说明播放器被加载过了 id发生了变化需要把上一个音乐停掉 把上个音乐的播放时间初始化
   if (oldId) {
-    console.log(newId, oldId)
     onStopMusic()
   }
 
@@ -135,7 +134,7 @@ watch(() => userStore.musicId, (newId, oldId) => {
     //获取歌词
     getLyric(newId).then(res => {
       if (res.lrc) {
-        lyric.value = finishLyric(res.lrc.lyric)
+        lyric.value = finishLyric(res.lrc.lyric.replaceAll(/\[(\d{2}):(\d{2})\.(\d{2,})\]\n/g,''))
         console.log(lyric.value)
       }
     })
