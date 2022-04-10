@@ -1,16 +1,18 @@
 import {defineStore} from 'pinia'
+
 export const store = defineStore('main', {
     state() {
         return {
             // 用户数据
-            userInfo:{},
+            userInfo: {},
             //播放音乐的数据
-            playMusic: {
-            },
+            playMusic: {},
             //音乐id
             musicId: '',
             //最新歌曲的数据
             newMusicList: [],
+            //播放列表的数据
+            playList: [],
             //是否在播放音乐
             checkPlay: false,
             //是否显示播放音乐的控制面板
@@ -31,6 +33,10 @@ export const store = defineStore('main', {
         //设置播放音乐id
         setMusicId(id) {
             this.musicId = id;
+        },
+        //设置播放列表
+        setPlayList(songList) {
+            this.playList = songList;
         },
     },
     getters: {
@@ -76,11 +82,34 @@ export const store = defineStore('main', {
         getAlbumSinger(store) {
             let name = []
             //遍历歌手
-            store.albumContent?.album.artists.forEach(value=>{
+            store.albumContent?.album.artists.forEach(value => {
                 name.push(value.name)
             })
             //拼接歌手
             return name.join(' / ');
+        },
+        //获取下一首歌
+        getNextSong() {
+            return (songId) => {
+                //找到当前播放的歌曲索引
+                const findIndex = this.playList.findIndex(value => {
+                    return value.id === songId;
+                })
+                //获取下一首歌曲
+                return findIndex === this.playList.length - 1 ? this.playList[0] : this.playList[findIndex + 1];
+            }
+
+        },
+        //获取上一首歌
+        getPrevSong() {
+            return (songId) => {
+                //找到当前播放的歌曲索引
+                const findIndex = this.playList.findIndex(value => {
+                    return value.id === songId;
+                })
+                //获取上一首歌曲
+                return findIndex === 0 ? this.playList[this.playList.length - 1] : this.playList[findIndex - 1];
+            }
         },
     }
 })

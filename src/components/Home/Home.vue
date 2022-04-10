@@ -40,35 +40,16 @@ if (userStore.getNewMusicList.length === 0) { //如果没有数据就请求资�
 }
 
 const onPlayMusic = async (row) => {
-  // userStore.newMusicList.forEach((music, index, arr) => {
-  //   if (id !== music.id) {
-  //     return
-  //   }
-  //   let len = arr.length;
-  //   switch (index) {
-  //     case 0: {
-  //       music.prevMusic = arr[len - 1].id
-  //       music.nextMusic = arr[index + 1].id
-  //       break
-  //     }
-  //     case (len - 1): {
-  //       music.prevMusic = arr[index - 1].id
-  //       music.nextMusic = arr[0].id
-  //       break
-  //     }
-  //     default: {
-  //       music.prevMusic = arr[index - 1].id
-  //       music.nextMusic = arr[index + 1].id
-  //     }
-  //   }
-
   //显示播放器
   userStore.showPlay = true;
   //如果点击的歌曲id和当前播放的歌曲id一样，就修改播放的id了
   if (row.id === userStore.musicId) return;
+  //点击了播放就把当前的歌曲列表设置为播放列表
   userStore.musicId = row.id;
   userStore.playMusic = row;
-
+  //如果播放列表不一样就 就改变播放列表
+  if (userStore.playList !== userStore.newMusicList)
+    userStore.setPlayList(userStore.newMusicList);
 }
 </script>
 

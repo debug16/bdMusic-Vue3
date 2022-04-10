@@ -107,14 +107,22 @@ const onAudioTimeupdate = (e) => {
 //播放下一曲
 const onNextPlay = () => {
   audio.value.pause();
-  getSongUrl(userStore.playMusic.nextMusic).then(res => {
-    if (res.data[0].url) {
-      userStore.playMusic.musicUrl = res.data[0].url;
-      userStore.showPlay = true;
-      userStore.checkPlay = true;
-      audio.value.online = audio.value.play;
-    }
-  })
+  userStore.checkPlay = false;
+  const songId = userStore.playMusic.id;
+  const nextSong = userStore.getNextSong(songId);
+  userStore.playMusic = nextSong;
+  console.log(nextSong.id,nextSong.name)
+  userStore.musicId = nextSong.id;
+}
+//播放上一曲
+const onPrevPlay = () => {
+  audio.value.pause();
+  userStore.checkPlay = false;
+  const songId = userStore.playMusic.id;
+  const prevSong = userStore.getPrevSong(songId);
+  userStore.playMusic = prevSong;
+  console.log(prevSong.id,prevSong.name)
+  userStore.musicId = prevSong.id;
 }
 
 //监听音乐id 如果变化就获取新的音乐信息
@@ -135,7 +143,6 @@ watch(() => userStore.musicId, (newId, oldId) => {
     getLyric(newId).then(res => {
       if (res.lrc) {
         lyric.value = finishLyric(res.lrc.lyric.replaceAll(/\[(\d{2}):(\d{2})\.(\d{2,})\]\n/g,''))
-        console.log(lyric.value)
       }
     })
   }
@@ -242,6 +249,7 @@ watch(() => userStore.musicId, (newId, oldId) => {
                 stroke-width="2"
                 viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"
+                @click="onPrevPlay"
             >
               <path
                   d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z"
@@ -376,7 +384,7 @@ svg {
   left: 0;
   top: 0;
   background: #525252;
-  opacity: .4;
+  opacity: .5;
   z-index: -12;
 }
 
