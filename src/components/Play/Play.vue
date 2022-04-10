@@ -78,7 +78,6 @@ const onEndPlayusic = ()=>{
 
 //停止播放
 const onStopMusic = () => {
-  console.log('暂停播放')
   // onNextPlay();
   userStore.checkPlay = false;
   audio.value.pause();
@@ -86,7 +85,6 @@ const onStopMusic = () => {
 
 //开始播放
 const onPlayMusic = () => {
-  console.log('开始播放')
   audio.value.play();
   userStore.checkPlay = true;
   playInfo.duration = audio.value.duration || 0.01
@@ -109,7 +107,7 @@ const onAudioTimeupdate = (e) => {
     }
     return false
   }) || 0
-  lyricIndex.value = index;
+  lyricIndex.value = index === 0 ? 0 : index - 1
 }
 
 //播放下一曲
