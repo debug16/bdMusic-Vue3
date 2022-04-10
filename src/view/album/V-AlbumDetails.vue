@@ -26,11 +26,12 @@ const getAlbumSinger = (row) => {
 
 //播放音乐事件
 const onPlayMusic = (row) => {
+  userStore.playMusic = row
+  userStore.musicId = row.id
   if(userStore.playList !== userStore.getAlbumSong){
     userStore.playList = userStore.getAlbumSong
   }
 
-  userStore.playMusic = row
   userStore.showPlay = true;
 }
 

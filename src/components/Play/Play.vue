@@ -73,6 +73,7 @@ const onHiddenView = () => {
 
 //播放结束
 const onEndPlayusic = () => {
+  onStopMusic()
   onNextPlay();
 }
 
@@ -112,11 +113,15 @@ const onAudioTimeupdate = (e) => {
 
 //播放下一曲
 const onNextPlay = () => {
-  // onStopMusic()
+  //如果播放列表只有一首歌，则不播放
+  if(userStore.playList.length === 1){
+    return
+  }
+
+  onStopMusic();
   const songId = userStore.playMusic.id;
   const nextSong = userStore.getNextSong(songId);
   userStore.playMusic = nextSong;
-  console.log(nextSong.id, nextSong.name)
   userStore.musicId = nextSong.id;
 }
 
