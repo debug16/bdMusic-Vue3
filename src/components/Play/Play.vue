@@ -71,14 +71,22 @@ const onHiddenView = () => {
   userStore.showPlay = false;
 }
 
+//播放结束
+const onEndPlayusic = ()=>{
+  onNextPlay();
+}
+
 //停止播放
 const onStopMusic = () => {
+  console.log('暂停播放')
+  // onNextPlay();
   userStore.checkPlay = false;
   audio.value.pause();
 }
 
 //开始播放
 const onPlayMusic = () => {
+  console.log('开始播放')
   audio.value.play();
   userStore.checkPlay = true;
   playInfo.duration = audio.value.duration || 0.01
@@ -106,18 +114,17 @@ const onAudioTimeupdate = (e) => {
 
 //播放下一曲
 const onNextPlay = () => {
-  audio.value.pause();
-  userStore.checkPlay = false;
+  // onStopMusic()
   const songId = userStore.playMusic.id;
   const nextSong = userStore.getNextSong(songId);
   userStore.playMusic = nextSong;
   console.log(nextSong.id,nextSong.name)
   userStore.musicId = nextSong.id;
 }
+
 //播放上一曲
 const onPrevPlay = () => {
-  audio.value.pause();
-  userStore.checkPlay = false;
+  // onStopMusic()
   const songId = userStore.playMusic.id;
   const prevSong = userStore.getPrevSong(songId);
   userStore.playMusic = prevSong;
@@ -337,7 +344,7 @@ watch(() => userStore.musicId, (newId, oldId) => {
         </ul>
       </div>
     </el-footer>
-    <audio ref="audio" @ended="onStopMusic" @play="onPlayMusic" @timeupdate="onAudioTimeupdate($event)"
+    <audio ref="audio" @ended="onEndPlayusic" @play="onPlayMusic"  @timeupdate="onAudioTimeupdate($event)"
            :src="userStore.playMusic.musicUrl" autoplay="autoplay" hidden
            controls>
       <source :src="userStore.playMusic.musicUrl" type="audio/ogg">
