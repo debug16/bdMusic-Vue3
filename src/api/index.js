@@ -145,6 +145,15 @@ const getLyric = async (id) => {
     return await request('/lyric', {id},)
 }
 
+/**
+ * 获取歌曲详情
+ * @param ids 歌曲id 多个歌曲id用 , 分隔
+ * @return {Promise<Object>}
+ */
+const getSongDetail = async ids => {
+    return await request('/song/detail', {ids},)
+}
+
 export {
     newSong,
     getBanner,
@@ -155,5 +164,6 @@ export {
     getAlbumContent,
     loginPhone,
     getLoginStatus,
-    getLyric
+    getLyric,
+    getSongDetail
 };

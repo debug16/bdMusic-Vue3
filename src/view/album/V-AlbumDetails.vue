@@ -26,12 +26,11 @@ const getAlbumSinger = (row) => {
 
 //播放音乐事件
 const onPlayMusic = (row) => {
-  const blurPicUrl = {
-    blurPicUrl: userStore.getAlbumImg,
+  if(userStore.playList !== userStore.getAlbumSong){
+    userStore.playList = userStore.getAlbumSong
   }
-  userStore.playMusic.album = blurPicUrl;
-  userStore.playMusic.name = row.name;
-  userStore.setMusicId(row.id);
+
+  userStore.playMusic = row
   userStore.showPlay = true;
 }
 
@@ -41,7 +40,8 @@ const theme = {
 </script>
 
 <template>
-  <div class="header relative bg-transparent overflow-hidden" :style="`--bg-img:url('${userStore.getAlbumImg}?param=150y150')`">
+  <div class="header relative bg-transparent overflow-hidden"
+       :style="`--bg-img:url('${userStore.getAlbumImg}?param=150y150')`">
     <UpAlbumBar title="专辑" class="text-[#fff] relative"/>
     <el-card class="relative top-0 left-0">
       <el-empty :image-size="150" :image="`${userStore.getAlbumImg}?param=150y150`">
@@ -101,9 +101,11 @@ const theme = {
   background: #a2a1a1;
   overflow: hidden;
 }
-:deep(.el-header div svg){
+
+:deep(.el-header div svg) {
   color: #fff;
 }
+
 .header::before {
   content: '';
   position: absolute;

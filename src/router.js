@@ -76,8 +76,16 @@ export default createRouter({
             },
             async beforeEnter(to, from, next) {
                 const albumContent = await getAlbumContent(to.params.id);
+                console.log(albumContent);
                 if (albumContent.code === 200) {
                     store().setAlbumContent(albumContent)
+                    const picUrl = albumContent.album.picUrl
+                    const album = {
+                        picUrl
+                    }
+                    for (let song of albumContent.songs) {
+                        song.album = album
+                    }
                     next()
                 } else {
                     next(from)

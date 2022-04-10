@@ -72,7 +72,7 @@ const onHiddenView = () => {
 }
 
 //播放结束
-const onEndPlayusic = ()=>{
+const onEndPlayusic = () => {
   onNextPlay();
 }
 
@@ -116,7 +116,7 @@ const onNextPlay = () => {
   const songId = userStore.playMusic.id;
   const nextSong = userStore.getNextSong(songId);
   userStore.playMusic = nextSong;
-  console.log(nextSong.id,nextSong.name)
+  console.log(nextSong.id, nextSong.name)
   userStore.musicId = nextSong.id;
 }
 
@@ -126,7 +126,6 @@ const onPrevPlay = () => {
   const songId = userStore.playMusic.id;
   const prevSong = userStore.getPrevSong(songId);
   userStore.playMusic = prevSong;
-  console.log(prevSong.id,prevSong.name)
   userStore.musicId = prevSong.id;
 }
 
@@ -136,7 +135,6 @@ watch(() => userStore.musicId, (newId, oldId) => {
   if (oldId) {
     onStopMusic()
   }
-
   //如果新的id有值说明需要播放新的音乐
   if (newId) {
     //获取新的音乐信息
@@ -147,7 +145,7 @@ watch(() => userStore.musicId, (newId, oldId) => {
     //获取歌词
     getLyric(newId).then(res => {
       if (res.lrc) {
-        lyric.value = finishLyric(res.lrc.lyric.replaceAll(/\[(\d{2}):(\d{2})\.(\d{2,})\]\n/g,''))
+        lyric.value = finishLyric(res.lrc.lyric.replaceAll(/\[(\d{2}):(\d{2})\.(\d{2,})\]\n/g, ''))
       }
     })
   }
@@ -162,7 +160,7 @@ watch(() => userStore.musicId, (newId, oldId) => {
   >
     <!-- 背景 -->
     <div
-        :style="`background-image:url('${userStore.playMusic.album?.blurPicUrl}?param=200y200')`"
+        :style="`background-image:url('${userStore.playMusic.album?.picUrl}?param=200y200')`"
         class="bg bg-cover w-full h-full absolute -z-10 bg-center overflow-hidden blur-lg scale-125 transition-all duration-1000"
     />
     <el-header class="flex items-center relative px-3">
@@ -206,7 +204,7 @@ watch(() => userStore.musicId, (newId, oldId) => {
     <el-main class="px-3 py-0 flex justify-center items-center text-[#fff]">
       <div class="CDdisk" v-show="!lyricShow">
         <el-avatar :class="{'paused':!userStore.checkPlay,'play':userStore.checkPlay}" :size="230"
-                   :src="`${userStore.playMusic.album?.blurPicUrl}?param=200y200`"
+                   :src="`${userStore.playMusic.album?.picUrl}?param=200y200`"
                    class="ring-50 ring-black animate-spin-slow"
         />
       </div>
@@ -342,7 +340,7 @@ watch(() => userStore.musicId, (newId, oldId) => {
         </ul>
       </div>
     </el-footer>
-    <audio ref="audio" @ended="onEndPlayusic" @play="onPlayMusic"  @timeupdate="onAudioTimeupdate($event)"
+    <audio ref="audio" @ended="onEndPlayusic" @play="onPlayMusic" @timeupdate="onAudioTimeupdate($event)"
            :src="userStore.playMusic.musicUrl" autoplay="autoplay" hidden
            controls>
       <source :src="userStore.playMusic.musicUrl" type="audio/ogg">
