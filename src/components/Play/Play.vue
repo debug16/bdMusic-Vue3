@@ -3,7 +3,7 @@ import {ElAvatar, ElContainer, ElFooter, ElHeader, ElMain, ElProgress,} from "el
 import {formateTime} from "../../util/Date";
 import {reactive, ref, watch} from "vue";
 import Lyric from "../Lyric/Lyric.vue";
-import {getSongUrl, getLyric} from "/src/api/index";
+import {getSongUrl, getLyric, getSongDetail,getMvUrl} from "/src/api/index";
 import {store} from '/src/store'
 
 //audio
@@ -18,7 +18,7 @@ const playInfo = reactive({
   musicCurrentTime: '00:00'
 })
 //歌词是否显示
-const lyricShow = ref(false)
+let lyricShow = ref(false)
 //歌词播放时index
 const lyricIndex = ref(0)
 //歌词
@@ -114,7 +114,7 @@ const onAudioTimeupdate = (e) => {
 //播放下一曲
 const onNextPlay = () => {
   //如果播放列表只有一首歌，则不播放
-  if(userStore.playList.length === 1){
+  if (userStore.playList.length === 1) {
     return
   }
 
@@ -140,13 +140,19 @@ watch(() => userStore.musicId, (newId, oldId) => {
   if (oldId) {
     onStopMusic()
   }
+  //判断是否有背景图
+  if(!userStore.playMusic.album.picUrl){
+    getSongDetail(newId).then(res => {
+      userStore.playMusic.album.picUrl = res.songs[0].al.picUrl;
+    })
+  }
   //如果新的id有值说明需要播放新的音乐
   if (newId) {
+
     //获取新的音乐信息
     getSongUrl(newId).then(res => {
       userStore.playMusic.musicUrl = res.data[0].url;
     })
-
     //获取歌词
     getLyric(newId).then(res => {
       if (res.lrc) {

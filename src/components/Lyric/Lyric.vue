@@ -28,7 +28,8 @@ watch(() => props.lyricIndex, (n) => {
 })
 
 onMounted(() => {
-  ulPadding.value = lyricsBox.value?.clientHeight / 2
+  ulPadding.value = lyricsBox.value?.clientHeight / 22
+  console.log(lyricsBox.value)
 })
 
 

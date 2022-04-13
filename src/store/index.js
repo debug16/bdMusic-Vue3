@@ -7,6 +7,10 @@ export const store = defineStore('main', {
             userInfo: {},
             //播放音乐的数据
             playMusic: {},
+            //mv数据
+            mvInfo: {},
+            //是否显示mv
+            isShowMv: false,
             //音乐id
             musicId: '',
             //最新歌曲的数据
@@ -20,7 +24,9 @@ export const store = defineStore('main', {
             //新碟上架的数据
             albums: {},
             //专辑内容的数据
-            albumContent: {}
+            albumContent: {},
+            //歌曲搜索列表
+            searchSongsList: []
         }
     },
     actions: {

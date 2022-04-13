@@ -1,6 +1,6 @@
 <template>
   <el-header class="px-0 flex items-center">
-    <el-input placeholder="大家都在搜 一样的月光">
+    <el-input placeholder="大家都在搜 一样的月光" v-model.trim="inputKeyword" @keyup.enter="search(inputKeyword)">
       <template #prepend class="bg-blue-200">
         <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -53,13 +53,38 @@
 
 <script setup>
 import {ElHeader, ElInput} from "element-plus";
+import {ref} from "vue";
+import {store} from "/src/store";
+import {searchSongs} from '/src/api/index'
+
+const inputKeyword = ref()
+const userStore = store()
+const search = async (keyWord) => {
+  const res = await searchSongs(keyWord)
+  if(res.code ===200){
+    userStore.newMusicList = res.result.songs;
+    userStore.newMusicList.forEach((e,i,a)=>{
+      userStore.newMusicList[i].singers = singerStitch(e)
+    })
+    inputKeyword.value = ''
+  }
+}
+const singerStitch = (singer) => {
+  let singers = "";
+  singer.artists.forEach((singer) => {
+    singers ? (singers += "/" + singer.name) : (singers = singer.name);
+  });
+  return singers
+}
+
 </script>
 
 <style scoped>
 
-.el-header{
+.el-header {
   height: 45px;
 }
+
 :deep(.el-input-group__prepend),
 :deep(.el-input-group__append) {
   @apply bg-transparent shadow-none px-4;

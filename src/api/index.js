@@ -154,6 +154,30 @@ const getSongDetail = async ids => {
     return await request('/song/detail', {ids},)
 }
 
+/**
+ * 歌曲搜索
+ * @param keywords 搜索的歌曲
+ * @return {Promise<Object>}
+ */
+const searchSongs = async keywords => {
+    return await request('/search', {keywords},)
+}
+/**
+ * 获取mvUrl
+ * @param id mvId
+ * @return {Promise<Object>}
+ */
+const getMvUrl = async id =>{
+    return await request('/mv/url', {id},)
+}
+/**
+ * 获取mv评论
+ * @param id mvid
+ * @return {Promise<Object>}
+ */
+const getMvComment = async id =>{
+    return await request('/comment/mv', {id},)
+}
 export {
     newSong,
     getBanner,
@@ -165,5 +189,8 @@ export {
     loginPhone,
     getLoginStatus,
     getLyric,
-    getSongDetail
+    getSongDetail,
+    searchSongs,
+    getMvUrl,
+    getMvComment,
 };

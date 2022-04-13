@@ -7,10 +7,14 @@ import './assets/css/index.css'
 
 const userStore = store()
 let viewPlay = shallowRef()
+let viewMV = shallowRef()
 
 watchEffect(() => {
   if (userStore.showPlay && !viewPlay.value) {
     viewPlay.value = defineAsyncComponent(() => import('./components/Play/Play.vue'))
+  }
+  if(userStore.isShowMv && !viewMV.value) {
+    viewMV.value = defineAsyncComponent(() => import('./components/MV/MV.vue'))
   }
 })
 
@@ -27,6 +31,8 @@ watchEffect(() => {
     <router-view name="downTabBar"></router-view>
     <!-- 播放器 -->
     <component :is="viewPlay"></component>
+    <!--    MV-->
+    <component :is="viewMV"></component>
     <!-- 登录 -->
     <router-view name="login"></router-view>
   </div>

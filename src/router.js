@@ -46,12 +46,12 @@ export default createRouter({
         }
     },
         {
-            path: '/play',
+            path: '/collect',
             components: {
-                default: () => import('/src/components/Lyric/Lyric.vue'),
+                default: () => import('/src/components/Collection/Collection.vue'),
                 downTabBar,
             },
-            name: 'play',
+            name: 'collect',
             keepAlive: true
         },
         {
@@ -76,7 +76,6 @@ export default createRouter({
             },
             async beforeEnter(to, from, next) {
                 const albumContent = await getAlbumContent(to.params.id);
-                console.log(albumContent);
                 if (albumContent.code === 200) {
                     store().setAlbumContent(albumContent)
                     const picUrl = albumContent.album.picUrl
